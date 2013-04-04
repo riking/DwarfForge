@@ -1,0 +1,24 @@
+name: DwarfForge
+main: org.simiancage.bukkit.DwarfForge.DwarfForge
+version: 2.3.0
+author: Don Redhorse
+
+commands:
+
+permissions:
+    dwarfforge.*:
+        description: Gives access to all DwarfForge commands.
+        children:
+            dwarfforge.create: true
+            dwarfforge.use: true
+            dwarfforge.destroy: true
+    dwarfforge.create:
+        description: Allows you to create a Dwarven forge.
+        default: true
+    dwarfforge.use:
+        description: Allows you to use a Dwarven forge.
+        default: true
+    dwarfforge.destroy:
+        description: Allows you to destroy a Dwarven forge.
+        default: true
+
