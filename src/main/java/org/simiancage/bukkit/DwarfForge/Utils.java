@@ -18,18 +18,23 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
 
+import java.util.Iterator;
+
 import net.minecraft.server.v1_5_R2.ItemStack;
 import net.minecraft.server.v1_5_R2.RecipesFurnace;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_5_R2.inventory.CraftItemStack;
+import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.Recipe;
 
 class Utils {
 
@@ -68,9 +73,26 @@ class Utils {
     static Material resultOfCooking(Material mat) {
         ItemStack item = RecipesFurnace.getInstance().getResult(mat.getId());
         return (item != null)
-/*                ? new CraftItemStack(item).getType() */
-        		? CraftItemStack.asCraftMirror(item).getType()
-                : null;
+                /*                ? new CraftItemStack(item).getType() */
+                ? CraftItemStack.asCraftMirror(item).getType()
+                        : null;
+    }
+
+    static Material getRawProduct(Material result) {
+        if (result == null) {
+            return null;
+        }
+        Iterator<Recipe> iter = Bukkit.recipeIterator();
+        while(iter.hasNext()) {
+            Recipe rec = iter.next();
+            if (!(rec instanceof FurnaceRecipe)) {
+                continue;
+            }
+            if (rec.getResult().getType() == result) {
+                return ((FurnaceRecipe)rec).getInput().getType();
+            }
+        }
+        return null;
     }
 
     static boolean canCook(Material m) {

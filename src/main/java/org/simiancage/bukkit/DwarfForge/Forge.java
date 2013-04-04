@@ -18,20 +18,22 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
 import net.minecraft.server.v1_5_R2.BlockFurnace;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Furnace;
 import org.bukkit.craftbukkit.v1_5_R2.CraftWorld;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.FurnaceAndDispenser;
 
@@ -68,7 +70,7 @@ class Forge implements Runnable {
 
 
     public Forge(Block block) {
-        this.loc = block.getLocation();
+        loc = block.getLocation();
         Config.getInstance();
         log.debug("Forge toggled at", loc.toString());
     }
@@ -190,75 +192,59 @@ class Forge implements Runnable {
         return true;
     }
 
-    // Returns false if forge should be deactivated.
+    /**
+     * Update the raw material slot of the forge.
+     * @return true if forge can continue working
+     */
     boolean updateRawMaterial() {
         Furnace state = (Furnace) getBlock().getState();
         Inventory blockInv = state.getInventory();
 
         // Can only reload if the raw material slot is empty.
         ItemStack raw = blockInv.getItem(RAW_SLOT);
-        if (raw == null || raw.getType() == Material.AIR) {
-
+        if (raw != null && raw.getType() != Material.AIR) {
+            // Something already in the raw slot; is it smeltable?
+            return Utils.canCook(raw.getType());
+        } else {
             // Can only reload if an input chest is available.
             Block input = getInputChest();
             if (input != null) {
+                BlockState inpstate = input.getState();
+                if (inpstate instanceof InventoryHolder) {
+                    Inventory inpInv = ((InventoryHolder)inpstate).getInventory();
 
-                BetterChest chest = new BetterChest((Chest) input.getState());
-                Inventory chestInv = chest.getInventory();
-
-                boolean itemFound = false;
-
-                // Find the first smeltable item in the chest.
-                ItemStack[] allItems = chestInv.getContents();
-                for (ItemStack items : allItems) {
-                    if (items != null && Utils.canCook(items.getType())) {
-
-                        // TODO This probably needs to be elsewhere (and here?)
-                        // updateRawMaterial is ALWAYS called after updateProduct
-                        // If product remains and is NOT the same as what the
-                        // current item will cook to, skip it.
-                        ItemStack prod = blockInv.getItem(PRODUCT_SLOT);
-                        if (prod != null && prod.getType() != Material.AIR) {
-                            if (Utils.resultOfCooking(items.getType())
-                                    != prod.getType()) {
-                                continue;
-                            }
-                        }
-
-                        // Move one item at a time, rather than one stack
-                        // for more parallelism.
-                        ItemStack single = items.clone();
-                        single.setAmount(1);
-                        blockInv.setItem(RAW_SLOT, single);
-
-                        if (items.getAmount() == 1) {
-                            chestInv.clear(chestInv.first(items));
-                        } else {
-                            items.setAmount(items.getAmount() - 1);
-                        }
-
-                        // Set cook time.
-                        ((Furnace) getBlock().getState()).setCookTime(Config.cookTime());
-
-                        itemFound = true;
-                        break;
+                    // Check for the same item first
+                    Material want = Utils.getRawProduct(blockInv.getItem(PRODUCT_SLOT).getType());
+                    if (inpInv.contains(want)) {
+                        ItemStack inp = inpInv.getItem(inpInv.first(want));
+                        inpInv.removeItem(inp);
+                        blockInv.setItem(RAW_SLOT, inp);
+                        return true;
                     }
-                }
-
-                if (!itemFound) {
+                    // Can't find the same item, look for anything
+                    for (ItemStack item : inpInv.getContents()) {
+                        if (Utils.canCook(item.getType())) {
+                            int takeAmount = 1;
+                            // Take all, because it's generally more efficent
+                            if ((item.getAmount()) > 1) {
+                                takeAmount = item.getAmount();
+                            }
+                            ItemStack toTake = item.clone();
+                            toTake.setAmount(takeAmount);
+                            HashMap<Integer, ItemStack> ghost = inpInv.removeItem(toTake);
+                            if (!ghost.isEmpty()) {
+                                toTake.setAmount(toTake.getAmount() - ghost.get(0).getAmount());
+                            }
+                            blockInv.setItem(FUEL_SLOT, toTake);
+                            return true;
+                        }
+                    }
                     return false;
                 }
-            } else {
-                // no input chest; no input material
-                return false;
             }
-        } else {
-            // Something already in the raw slot; is it smeltable?
-            return Utils.canCook(raw.getType());
         }
 
-
-        return true;
+        return false;
     }
 
     // Returns false if forge should be deactivated.
@@ -275,37 +261,27 @@ class Forge implements Runnable {
             // Can reload only if an input chest is available.
             Block input = getInputChest();
             if (input != null) {
+                BlockState inpstate = input.getState();
+                if (inpstate instanceof InventoryHolder) {
+                    Inventory inpInv = ((InventoryHolder)inpstate).getInventory();
 
-                BetterChest chest = new BetterChest((Chest) input.getState());
-                Inventory chestInv = chest.getInventory();
-
-                boolean itemFound = false;
-
-                // Find the first burnable item in the chest.
-                ItemStack[] allItems = chestInv.getContents();
-                for (ItemStack items : allItems) {
-                    if (items != null && Utils.canBurn(items.getType())) {
-
-                        // Move one item at a time, rather than one stack
-                        // for more parallelism.
-                        ItemStack single = items.clone();
-                        single.setAmount(1);
-                        blockInv.setItem(FUEL_SLOT, single);
-
-                        if (items.getAmount() == 1) {
-                            chestInv.clear(chestInv.first(items));
-                        } else {
-                            items.setAmount(items.getAmount() - 1);
+                    for (ItemStack item : inpInv.getContents()) {
+                        if (Utils.canBurn(item.getType())) {
+                            int takeAmount = 1;
+                            // Only take 1/4 of stack, to allow multiple feeding
+                            if ((item.getAmount() / 4) > 1) {
+                                takeAmount = item.getAmount() / 4;
+                            }
+                            ItemStack toTake = item.clone();
+                            toTake.setAmount(takeAmount);
+                            HashMap<Integer, ItemStack> ghost = inpInv.removeItem(toTake);
+                            if (!ghost.isEmpty()) {
+                                toTake.setAmount(toTake.getAmount() - ghost.get(0).getAmount());
+                            }
+                            blockInv.setItem(FUEL_SLOT, toTake);
+                            return true;
                         }
-
-                        itemFound = true;
-                        break;
                     }
-                }
-
-                if (!itemFound) {
-                    // TODO this might not be right... we want to allow
-                    // fuel to burn itself out...?
                     return false;
                 }
             }
@@ -484,12 +460,16 @@ class Forge implements Runnable {
         // First, try putting as much fuel back into the input chest.
         Block input = getInputChest();
         if (input != null) {
-            BetterChest chest = new BetterChest((Chest) input.getState());
-            Inventory chestInv = chest.getInventory();
+            BlockState instate = input.getState();
+            if (state instanceof InventoryHolder) {
+                Inventory chestInv = ((InventoryHolder)instate).getInventory();
 
-            // Add to chest; remember what remains, if any.
-            HashMap<Integer, ItemStack> remains = chestInv.addItem(fuel);
-            fuel = remains.isEmpty() ? null : remains.get(0);
+                // Add to chest; remember what remains, if any.
+                HashMap<Integer, ItemStack> remains = chestInv.addItem(fuel);
+                for (ItemStack i: remains.values()) {
+                    loc.getWorld().dropItemNaturally(loc, i);
+                }
+            }
         }
 
         // Second, drop on ground.
@@ -498,15 +478,18 @@ class Forge implements Runnable {
         }
     }
 
-    // Move the item stack to the input/output chest as provided, either returning
-    // what remains or dropping it based on flag. Note: chest might be null.
+    /**
+     * Move the item stack to the input/output chest as provided.
+     * @param item
+     * @param chest - block to move the item into. Can be null.
+     * @param dropRemains whether to drop anything that can't be moved
+     * @return anything that did not get moved
+     */
     ItemStack addTo(ItemStack item, Block chest, boolean dropRemains) {
-        if (item == null)   // TODO This should NOT be possible: need to verify.
-        {
-            return null;
-        }
+        Validate.notNull(item);
 
-        if (chest == null) {    // No destination chest.
+        if (chest == null) {
+            // No destination chest.
             if (dropRemains) {
                 loc.getWorld().dropItemNaturally(loc, item);
                 return null;
@@ -514,9 +497,19 @@ class Forge implements Runnable {
                 return item;
             }
         } else {
-            BetterChest bchest = new BetterChest((Chest) chest.getState());
-            Inventory chestInv = bchest.getInventory();
-
+            BlockState ch = chest.getState();
+            Inventory chestInv;
+            if (ch instanceof InventoryHolder) {
+                chestInv = ((InventoryHolder)ch).getInventory();
+            } else {
+                // Destination is not a chest.
+                if (dropRemains) {
+                    loc.getWorld().dropItemNaturally(loc, item);
+                    return null;
+                } else {
+                    return item;
+                }
+            }
             HashMap<Integer, ItemStack> remains = chestInv.addItem(item);
             if (remains.isEmpty()) {
                 // Everything fit!
