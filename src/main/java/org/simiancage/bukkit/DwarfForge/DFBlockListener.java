@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
@@ -36,13 +36,11 @@ import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 class DFBlockListener implements DwarfForge.Listener, Listener {
     private DwarfForge main;
 
-    @Override
     public void onEnable(DwarfForge main) {
         this.main = main;
         main.getServer().getPluginManager().registerEvents(this, main);
     }
 
-    @Override
     public void onDisable() {
     }
 

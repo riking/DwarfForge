@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
@@ -229,70 +229,61 @@ public class DoubleInventory implements Inventory {
     }
 
     private static <T> HashMap<Integer, ? extends T> combineWithOffset(HashMap<Integer, ? extends T> first,
-                                                                       HashMap<Integer, ? extends T> second,
-                                                                       int offset) {
+            HashMap<Integer, ? extends T> second,
+            int offset) {
         HashMap<Integer, T> result = new HashMap<Integer, T>(first);
 
         // Put in items from the second map, adjusting key values.
         for (Integer key : second.keySet()) {
-            result.put(new Integer(key.intValue() + offset), (T) second.get(key));
+            result.put(new Integer(key.intValue() + offset), second.get(key));
         }
 
         return result;
     }
 
-	@Override
-	public InventoryHolder getHolder() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public InventoryHolder getHolder() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getTitle() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public String getTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public InventoryType getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public InventoryType getType() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<HumanEntity> getViewers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public List<HumanEntity> getViewers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ListIterator<ItemStack> iterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public ListIterator<ItemStack> iterator() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public int getMaxStackSize() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public int getMaxStackSize() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public void setMaxStackSize(int arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setMaxStackSize(int arg0) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public ListIterator<ItemStack> iterator(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public boolean containsAtLeast(ItemStack arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public ListIterator<ItemStack> iterator(int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public boolean containsAtLeast(ItemStack arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
 

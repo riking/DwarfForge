@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
@@ -120,7 +120,7 @@ public class BetterChest implements Chest {
 
     // BetterChest internals
     private static final BlockFace[] FACES = {
-            BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+        BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 
     private Chest ref;
 
@@ -143,52 +143,44 @@ public class BetterChest implements Chest {
         return null;    // No other adjacent chest.
     }
 
-	@Override
-	public Location getLocation() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Location getLocation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void setRawData(byte arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setRawData(byte arg0) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public List<MetadataValue> getMetadata(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public boolean hasMetadata(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public List<MetadataValue> getMetadata(String arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void removeMetadata(String arg0, Plugin arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    public boolean hasMetadata(String arg0) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void setMetadata(String arg0, MetadataValue arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void removeMetadata(String arg0, Plugin arg1) {
+        // TODO Auto-generated method stub
 
-	@Override
-	public Inventory getBlockInventory() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    }
 
-	@Override
-	public Location getLocation(Location arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public void setMetadata(String arg0, MetadataValue arg1) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public Inventory getBlockInventory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Location getLocation(Location arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
 

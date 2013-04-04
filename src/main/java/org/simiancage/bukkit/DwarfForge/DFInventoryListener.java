@@ -18,7 +18,7 @@
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
-*/
+ */
 
 package org.simiancage.bukkit.DwarfForge;
 
@@ -36,15 +36,13 @@ import org.bukkit.inventory.ItemStack;
 
 class DFInventoryListener implements DwarfForge.Listener, Listener {
     private DwarfForge main;
-    
-	@Override
-	public void onEnable(DwarfForge main) {
-		this.main = main;
-		main.getServer().getPluginManager().registerEvents(this, main);
-		// Event registration
-	}
-        
-    @Override
+
+    public void onEnable(DwarfForge main) {
+        this.main = main;
+        main.getServer().getPluginManager().registerEvents(this, main);
+        // Event registration
+    }
+
     public void onDisable() {
     }
 
@@ -59,7 +57,7 @@ class DFInventoryListener implements DwarfForge.Listener, Listener {
             return;
         }
 
-/*        final Block block = event.getFurnace(); */
+        /*        final Block block = event.getFurnace(); */
         final Block block = event.getBlock();
         final Forge forge = Forge.find(block);
 
@@ -85,8 +83,8 @@ class DFInventoryListener implements DwarfForge.Listener, Listener {
                         }
 
                         if (item == null) {
-                        	Inventory inv = ((Furnace) block.getState()).getInventory();
-                        	inv.setItem(Forge.FUEL_SLOT, new ItemStack(Material.AIR));
+                            Inventory inv = ((Furnace) block.getState()).getInventory();
+                            inv.setItem(Forge.FUEL_SLOT, new ItemStack(Material.AIR));
                         }
                     }
                 }
@@ -117,7 +115,7 @@ class DFInventoryListener implements DwarfForge.Listener, Listener {
 
         // Do nothing if the furnace isn't a Dwarf Forge.
         @SuppressWarnings("deprecation")
-		Block block = event.getFurnace();
+        Block block = event.getFurnace();
         if (!Forge.isValid(block)) {
             return;
         }
